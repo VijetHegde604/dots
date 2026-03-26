@@ -1,0 +1,68 @@
+# 1. --- SYSTEM & PATH ---
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
+
+# Standard user paths
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# 2. --- ENVIRONMENT VARIABLES ---
+# Handle TERM for SSH and Ghostty
+if [ -n "$SSH_CONNECTION" ]; then
+    export TERM=xterm-256color
+fi
+export TERM=xterm-256color
+export TERMINAL=ghostty
+
+# 3. --- SHELL ALIASES ---
+
+# Navigation & Core replacements
+alias cd="z"
+alias ls="lsd"
+alias ll="lsd -l"
+alias lt="lsd --tree"
+alias cat="bat"
+
+# Git & Development tools
+alias lg="lazygit"
+
+# Nix store cleanup helpers
+alias nixgc="sudo nix-collect-garbage -d"
+alias nixopt="sudo nix-store --optimise"
+
+# Quick nix shell
+alias ns="nix-shell -p"
+
+# Docker management
+alias start-docker="sudo systemctl start docker"
+alias stop-docker="sudo systemctl stop docker && sudo systemctl stop docker.socket"
+
+# 4. --- TOOL INITIALIZATION ---
+
+# Starship Prompt
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+fi
+
+# Zoxide (Smart cd)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init bash)"
+fi
+
+# Direnv (Environment switching)
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook bash)"
+fi
+
+# 5. --- EXTERNAL SNIPPETS ---
+# Source optional local bash snippets from ~/.bashrc.d
+if [ -d "$HOME/.bashrc.d" ]; then
+    for rc in "$HOME/.bashrc.d"/*; do
+        [ -f "$rc" ] && . "$rc"
+    done
+fi
+unset rc
