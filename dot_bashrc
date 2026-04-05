@@ -26,6 +26,7 @@ alias ls="lsd"
 alias ll="lsd -l"
 alias lt="lsd --tree"
 alias cat="bat"
+alias btop="btop --force-utf"
 
 # Git & Development tools
 alias lg="lazygit"
