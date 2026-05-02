@@ -5,6 +5,8 @@ config-notification {
     disable-failed
 }
 
+spawn-at-startup "vicinae" "server"
+
 // ┌──────────────────────────────┐
 // │ Gestures                     │
 // └──────────────────────────────┘
