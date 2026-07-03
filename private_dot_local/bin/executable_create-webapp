@@ -53,7 +53,7 @@ echo "Using browser: $CHOSEN_BROWSER"
 # -------------------------------
 read -rp "Enter App Name (e.g., ChatGPT): " APP_NAME
 read -rp "Enter URL (e.g., https://chatgpt.com): " APP_URL
-read -rp "Enter Icon URL (Optional, press enter for default, prefer png!): " ICON_URL
+read -rp "Enter Icon URL (Optional, press enter to auto-fetch from dashboard-icons): " ICON_URL
 
 # Validate input
 [ -n "$APP_NAME" ] || { echo "App name required"; exit 1; }
@@ -76,15 +76,27 @@ mkdir -p "$ICON_DIR" "$APP_DIR"
 # Handle Icon
 # -------------------------------
 if [ -z "$ICON_URL" ]; then
-  echo "No icon provided, using default."
-  ICON_VALUE="web-browser"
+  echo "No icon URL provided. Attempting auto-fetch from dashboard-icons..."
+
+  # Construct URL for walkxcode/dashboard-icons using the app slug
+  DASHBOARD_ICON_URL="https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/${APP_SLUG}.png"
+
+  if curl -L --fail --silent "$DASHBOARD_ICON_URL" -o "$ICON_PATH"; then
+    echo "Successfully fetched icon for '$APP_SLUG' from dashboard-icons."
+    ICON_VALUE="$ICON_PATH"
+  else
+    echo "Warning: Icon not found in dashboard-icons for '$APP_SLUG'. Using default."
+    ICON_VALUE="web-browser"
+    rm -f "$ICON_PATH" # Clean up any empty files left by curl
+  fi
 else
-  echo "Downloading icon..."
+  echo "Downloading user-provided icon..."
   if curl -L --fail --silent --show-error "$ICON_URL" -o "$ICON_PATH"; then
     ICON_VALUE="$ICON_PATH"
   else
-    echo "Warning: Failed to download icon, using default."
+    echo "Warning: Failed to download provided icon, using default."
     ICON_VALUE="web-browser"
+    rm -f "$ICON_PATH"
   fi
 fi
 
@@ -126,4 +138,7 @@ echo "----------------------------------------"
 echo "SUCCESS: $APP_NAME created!"
 echo "Browser : $CHOSEN_BROWSER"
 echo "File    : $DESKTOP_FILE"
+if [[ "$ICON_VALUE" != "web-browser" ]]; then
+  echo "Icon    : $ICON_VALUE"
+fi
 echo "----------------------------------------"
